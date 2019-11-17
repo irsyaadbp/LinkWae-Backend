@@ -1,0 +1,27 @@
+{
+  "name": "linkwae-backend",
+  "version": "1.0.0",
+  "description": "LinkWae Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/irsyaadbp/LinkWae-Backend.git"
+  },
+  "author": "Tim LinkWae",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/irsyaadbp/LinkWae-Backend/issues"
+  },
+  "homepage": "https://github.com/irsyaadbp/LinkWae-Backend#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "morgan": "^1.9.1",
+    "mysql": "^2.17.1",
+    "nodemon": "^1.19.4"
+  }
+}
