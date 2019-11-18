@@ -9,6 +9,7 @@ Router.get('/',(req,res)=> {
         message: "Welcome to Backend LinkWae",
     })
 })
+
 Router.use('/users',user)
 
 module.exports = Router;
