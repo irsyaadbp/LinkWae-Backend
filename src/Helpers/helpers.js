@@ -1,7 +1,6 @@
 "use-strict";
 
 const bcrypt = require("bcrypt");
-const salt = bcrypt.genSaltSync(10);
 
 exports.isNumber = number => {
   const reg = /^\d+$/;
@@ -15,6 +14,7 @@ exports.isEmailValid = email => {
 };
 
 exports.encrypt = data => {
+  const salt = bcrypt.genSaltSync(10);
   return bcrypt.hashSync(data, salt);
 };
 
