@@ -14,7 +14,6 @@ const jwt = require("jsonwebtoken");
         response: dataUser
       });
     } catch (error) {
-      console.log(error);
       res.status(400).json({
         status: "error",
         response: error
@@ -71,6 +70,13 @@ exports.checkUserAuth = async (req, res) => {
       });
     }
 
+    if (phone.length > 16 || phone.length < 8) {
+      return res.json({
+        status: "error",
+        response: "Phone can only be between 8-16 characters"
+      });
+    }
+
     const userByPhone = await userModel.findOne({
       where: { phone }
     });
@@ -80,7 +86,10 @@ exports.checkUserAuth = async (req, res) => {
 
     res.json({
       status: "success",
-      response: status
+      response: {
+        phone,
+        status
+      }
     });
   } catch (error) {
     res.status(400).json({
@@ -103,7 +112,6 @@ exports.checkUserAuth = async (req, res) => {
 //       });
 //     }
 
-    
 //   } catch (error) {}
 // };
 
@@ -126,10 +134,21 @@ exports.register = async (req, res) => {
       });
     }
 
-    if (phone.length > 16 || phone.length < 10) {
+    if (phone.length > 16 || phone.length < 8) {
       return res.json({
         status: "error",
-        response: "Phone can only be between 9-16 characters"
+        response: "Phone can only be between 8-16 characters"
+      });
+    }
+
+    const checkUser = await userModel.findOne({
+      where: { phone }
+    });
+
+    if (checkUser) {
+      return res.json({
+        status: "error",
+        response: "Phone number is exist"
       });
     }
 
@@ -166,9 +185,17 @@ exports.register = async (req, res) => {
     );
 
     if (newUser) {
+      const newUserData = await userModel.findOne({
+        where: { phone }
+      });
       return res.json({
         status: "success",
-        response: newUser
+        response: {
+          id: newUserData.id,
+          name: newUserData.name,
+          phone: newUserData.phone,
+          email: newUserData.email
+        }
       });
     }
   } catch (error) {
@@ -231,7 +258,6 @@ exports.login = async (req, res) => {
     });
 
     if (userByPhone) {
-      console.log(compareEncrypt(pin, userByPhone.pin));
       if (compareEncrypt(pin, userByPhone.pin)) {
         const token = jwt.sign(
           {
