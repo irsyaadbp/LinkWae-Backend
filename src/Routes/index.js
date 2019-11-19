@@ -16,7 +16,7 @@ Router.get('/',(req,res)=> {
 
 Router.use('/users',user);
 Router.use('/categories',category);
-Router.use('/transactions',transaction);
+//Router.use('/transactions',transaction);
 Router.use('/merchants',merchant);
 
 module.exports = Router;
