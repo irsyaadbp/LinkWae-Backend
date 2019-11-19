@@ -3,14 +3,14 @@
 const { DataTypes } = require("sequelize");
 const Sequelize = require("../Config/connect");
 
-exports.user = Sequelize.define(
+exports.userModel = Sequelize.define(
   "user",
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },
-    no_telp: {
+    phone: {
       type: DataTypes.STRING(16)
     },
     name: {
@@ -20,7 +20,7 @@ exports.user = Sequelize.define(
       type: DataTypes.STRING(50)
     },
     pin: {
-      type: DataTypes.INTEGER(6)
+      type: DataTypes.TEXT
     },
     image: {
       type: DataTypes.TEXT
@@ -31,7 +31,7 @@ exports.user = Sequelize.define(
     balance: {
       type: DataTypes.INTEGER
     },
-    no_rek: {
+    bill_number: {
       type: DataTypes.STRING(20)
     },
     bank: {
