@@ -11,7 +11,7 @@ Router.get("/by/:phone", userController.getUserByPhone);
 Router.get("/by/:user_id", userController.getUserById);
 
 // Authentication
-Router.get("/checkAuth", userController.checkUserAuth);
+Router.post("/checkAuth", userController.checkUserAuth);
 // Router.post("/verifyOtp", userController.verifyOtp);
 Router.post("/register", userController.register);
 Router.post("/login", userController.login);
