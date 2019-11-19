@@ -3,7 +3,7 @@
 const { DataTypes } = require("sequelize");
 const Sequelize = require("../Config/connect");
 
-exports.categories = Sequelize.define(
+exports.categoryModel = Sequelize.define(
   "categories",
   {
     id: {
@@ -11,7 +11,22 @@ exports.categories = Sequelize.define(
       primaryKey: true
     },
     name: {
-      type: DataTypes.STRING(10)
+      type: DataTypes.STRING(50)
+    },
+    address: {
+      type: DataTypes.TEXT
+    },
+    detail: {
+      type: DataTypes.TEXT
+    },
+    longitude: {
+      type: DataTypes.STRING(20)
+    },
+    latitude: {
+      type: DataTypes.STRING(20)
+    },
+    parent_category:{
+      type: DataTypes.ENUM(["ppob", "merchants","balance"])
     }
   },
   {

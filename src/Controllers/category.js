@@ -1,18 +1,18 @@
 "use-strict";
 
-const {categories} = require("../Models/category");
+const { categoryModel } = require("../Models/category");
 
 exports.getCategory = async (req, res)=>{
   try{
-  	const dataCategory = await categories.findAll();
+  	const dataCategory = await categoryModel.findAll();
   	res.json({
-  		data : dataCategory
+      status: "success",
+      response: dataCategory
   	});
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Something goes wrong",
-      data: error
+    res.status(400).json({
+      status: "error",
+      response: error
     });
   }
 };
@@ -21,41 +21,47 @@ exports.getCategoryId = async (req, res)=>{
 	try{
 		let id = req.params.id
 
-		const dataCategoryId = await categories.findOne({ 
+		const dataCategoryId = await categoryModel.findOne({ 
 			where : { id : id}
 		});
 		res.json({
-			data : dataCategoryId
+      status: "success",
+      response: dataCategoryId
 		});
 	} catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Something goes wrong",
-      data: error
+    res.status(400).json({
+      status: "error",
+      response: error
     });
   }
 };
 
 exports.postCategory = async (req, res) => {
+  console.log(req.body)
   try {
-    const dataPost = await categories.create({
-    	name :req.body.name,
+    await categoryModel.create({
+      name :req.body.name,
+      address :req.body.address,
+      detail :req.body.detail,
+      longitude :req.body.longitude,
+      latitude :req.body.latitude,
+      parent_category: req.body.parent_category,
     }).then(response =>{
-      categories.findOne({
+      categoryModel.findOne({
         where: {
           name : response.name
         }
       }).then(result =>{
          res.json({
-            data: result
+          status: "success",
+          response: result
           });
       })
     })
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Something goes wrong",
-      data: error
+    res.status(400).json({
+      status: "error",
+      response: error
     });
   }
 };
@@ -64,22 +70,22 @@ exports.updateCategory = async (req, res) => {
   try {
     let id = req.params.id
 
-    const dataUpdate = await categories.findOne({
+    await categoryModel.findOne({
       where : { id : id }
-      })
+    })
     .then(response => {
       response.update(req.body)
       .then(result => {
         res.json({
-          data: result
+          status: "success",
+          response: result
         });
       })
     })
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Something goes wrong",
-      data: error
+    res.status(400).json({
+      status: "error",
+      response: error
     });
   }
 };
@@ -88,21 +94,22 @@ exports.deleteCategory = async (req, res) => {
   try {
     let id = req.params.id
 
-    const dataDelete = await categories.destroy({
+    await categoryModel.destroy({
       where : { id : id }
     })
     .then(response => {
       res.json({
-        status : 200,
-        id: id,
-        message : 'Delete category success!'
+        status: "success",
+        response: {
+          id: id,
+          message :'Delete category success!'
+        }
       });
     })
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Something goes wrong",
-      data: error
+    res.status(400).json({
+      status: "error",
+      response: error
     });
   }
 };
