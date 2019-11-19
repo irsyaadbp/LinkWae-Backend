@@ -88,7 +88,7 @@ exports.checkUserAuth = async (req, res) => {
       status: "success",
       response: {
         phone,
-        status
+        isRegistered: status
       }
     });
   } catch (error) {
