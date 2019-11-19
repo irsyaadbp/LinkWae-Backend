@@ -2,7 +2,12 @@
 
 const { userModel } = require("../Models/user");
 const { otpModel } = require("../Models/otp");
-const { isNumber, encrypt, compareEncrypt } = require("../Helpers/helpers");
+const {
+  isNumber,
+  encrypt,
+  compareEncrypt,
+  isEmailValid
+} = require("../Helpers/helpers");
 const jwt = require("jsonwebtoken");
 (secretKey = process.env.SECRET_KEY || "linkwae"),
   // Get User
@@ -119,6 +124,15 @@ exports.register = async (req, res) => {
   try {
     const phone = req.body.phone;
     const pin = req.body.pin;
+    const name = req.body.name;
+    const email = req.body.email;
+    // console.log(req.headers.host);
+
+    const image = req.file
+      ? "/images/uploads/" + req.file.filename
+      : "/images/avatar.png";
+
+    // return;
 
     if (phone === "" || phone === null) {
       return res.json({
@@ -138,6 +152,27 @@ exports.register = async (req, res) => {
       return res.json({
         status: "error",
         response: "Phone can only be between 8-16 characters"
+      });
+    }
+
+    if (name === "" || name === null) {
+      return res.json({
+        status: "error",
+        response: "Name cant be empty"
+      });
+    }
+
+    if (email === "" || email === null) {
+      return res.json({
+        status: "error",
+        response: "Email cant be empty"
+      });
+    }
+
+    if (!isEmailValid(email)) {
+      return res.json({
+        status: "error",
+        response: "Invalid email format"
       });
     }
 
@@ -177,10 +212,13 @@ exports.register = async (req, res) => {
       {
         phone,
         pin: encrypt(pin),
+        image,
+        name,
+        email,
         type: "B"
       },
       {
-        fields: ["phone", "pin", "type"]
+        fields: ["phone", "pin", "name", "email", "image", "type"]
       }
     );
 
@@ -285,7 +323,7 @@ exports.login = async (req, res) => {
       } else {
         res.json({
           status: "error",
-          response: "Password not match"
+          response: "Pin not match"
         });
       }
     } else {
