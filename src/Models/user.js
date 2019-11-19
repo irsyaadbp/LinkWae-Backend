@@ -26,7 +26,7 @@ exports.userModel = Sequelize.define(
       type: DataTypes.TEXT
     },
     type: {
-      type: DataTypes.ENUM(["value", "another value"])
+      type: DataTypes.ENUM(["A", "FA", "B"])
     },
     balance: {
       type: DataTypes.INTEGER
