@@ -3,6 +3,7 @@
 require("dotenv/config");
 const express = require("express");
 const logger = require("morgan");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const Router = require("./src/Routes/index");
 
@@ -19,6 +20,9 @@ db.authenticate()
   });
 
 const server = express();
+
+server.use(cors());
+
 const portServer = 5000;
 const port = process.env.PORT || portServer;
 const nodeEnv = "Development";
