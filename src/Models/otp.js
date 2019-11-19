@@ -4,7 +4,7 @@ const { DataTypes } = require("sequelize");
 const Sequelize = require("../Config/connect");
 
 exports.otpModel = Sequelize.define(
-  "otp",
+  "otps",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -13,8 +13,8 @@ exports.otpModel = Sequelize.define(
     otp: {
       type: DataTypes.TEXT
     },
-    name: {
-      type: DataTypes.INTEGER
+    receiver: {
+      type: DataTypes.STRING(20)
     }
   },
   {
