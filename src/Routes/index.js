@@ -1,8 +1,10 @@
 'use-strict';
 
 const express = require('express');
-const user = require('./user');
 const Router = express.Router();
+
+const user = require('./user');
+const category = require('./category');
 
 Router.get('/',(req,res)=> {
     res.json({
@@ -10,6 +12,7 @@ Router.get('/',(req,res)=> {
     })
 })
 
-Router.use('/users',user)
+Router.use('/users',user);
+Router.use('/categories',category);
 
 module.exports = Router;
