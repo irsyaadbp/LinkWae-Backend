@@ -11,8 +11,8 @@ const {
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 
-const sid = process.env.SID;
-const auth = process.env.AUTH_TOKEN;
+const sid = process.env.SID || "is your twilio sid";
+const auth = process.env.AUTH_TOKEN || "is your twillio auth token";
 
 const client = require("twilio")(sid, auth);
 
@@ -20,7 +20,9 @@ const secretKey = process.env.SECRET_KEY || "linkwae";
 // Get User
 exports.getUser = async (req, res) => {
   try {
-    const dataUser = await userModel.findAll();
+    const dataUser = await userModel.findAll({
+      attributes: { exclude: ["pin"] }
+    });
     res.json({
       status: "success",
       response: dataUser
@@ -36,14 +38,44 @@ exports.getUser = async (req, res) => {
 exports.getUserByPhone = async (req, res) => {
   try {
     const phone = req.params.phone;
+
+    if (phone === "" || phone === null || phone === undefined) {
+      return res.json({
+        status: "error",
+        response: "Phone cant be empty"
+      });
+    }
+
+    if (!isNumber(phone)) {
+      return res.json({
+        status: "error",
+        response: "Phone must be number"
+      });
+    }
+
+    if (phone.length > 16 || phone.length < 8) {
+      return res.json({
+        status: "error",
+        response: "Phone can only be between 8-16 characters"
+      });
+    }
+
     const userByPhone = await userModel.findOne({
-      where: { phone }
+      where: { phone },
+      attributes: { exclude: ["pin"] }
     });
 
-    res.json({
-      status: "success",
-      response: userByPhone
-    });
+    if (userByPhone) {
+      res.json({
+        status: "success",
+        response: userByPhone
+      });
+    } else {
+      res.json({
+        status: "error",
+        response: "User not found"
+      });
+    }
   } catch (error) {
     res.status(400).json({
       status: "error",
@@ -54,14 +86,25 @@ exports.getUserByPhone = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user_id = req.params.user_id;
+    const id = req.params.user_id;
 
-    const userById = userModel.findOne({ where: { user_id } });
-
-    res.json({
-      status: "success",
-      response: userById
+    const userById = await userModel.findOne({
+      where: { id },
+      attributes: { exclude: ["pin"] }
     });
+
+    if (userById) {
+      // console.log(delete userById.pin);
+      res.json({
+        status: "success",
+        response: userById
+      });
+    } else {
+      res.json({
+        status: "error",
+        response: "User not found"
+      });
+    }
   } catch (error) {
     res.status(400).json({
       status: "error",
@@ -74,6 +117,13 @@ exports.getUserById = async (req, res) => {
 exports.checkUserAuth = async (req, res) => {
   try {
     const phone = req.body.phone;
+
+    if (phone === "" || phone === null || phone === undefined) {
+      return res.json({
+        status: "error",
+        response: "Phone cant be empty"
+      });
+    }
 
     if (!isNumber(phone)) {
       return res.json({
@@ -96,7 +146,11 @@ exports.checkUserAuth = async (req, res) => {
     if (userByPhone) status = true;
     else {
       status = false;
-      await sendOtp(phone, "phone", res);
+
+      // TODO Call function this.sendOtpSms
+      await sendOtpSms(req, res);
+
+      // await sendOtp(phone, "phone", res);
     }
 
     res.json({
@@ -114,6 +168,7 @@ exports.checkUserAuth = async (req, res) => {
   }
 };
 
+// TODO Delete function and route sendOtp, cause you have sendOtpEmail adn sendOtpSms
 const sendOtp = async (receiver, type, res) => {
   try {
     // const phone = req.body.phone;
@@ -178,64 +233,6 @@ const sendOtp = async (receiver, type, res) => {
   }
 };
 
-const sendSMS = (phone, otp) => {
-  client.messages
-    .create({
-      body: "Your OTP number is " + otp + ", this OTP only valid in 3 minutes",
-      from: process.env.TWILIO_NUMBER,
-      to: "+62" + phone
-    })
-    .then(message => console.log(message.sid));
-};
-
-const sendEmail = (email, subject, content) => {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  const msg = {
-    to: email,
-    from: "admin@linkwae.id",
-    subject: subject,
-    text: content,
-    html: content
-  };
-  sgMail.send(msg);
-};
-
-exports.verifyOtp = async (req, res) => {
-  console.log("masuk ");
-  try {
-    const receiver = req.body.user;
-    const otp = req.body.otp;
-    const userOtp = await otpModel.findOne({ where: { receiver } });
-
-    if (userOtp) {
-      if (compareEncrypt(otp, userOtp.otp)) {
-        otpModel.destroy({
-          where: { otp: userOtp.otp }
-        });
-        res.json({
-          status: "success",
-          response: "Otp code is valid"
-        });
-      } else {
-        res.json({
-          status: "error",
-          response: "Otp not match"
-        });
-      }
-    } else {
-      return res.json({
-        status: "error",
-        response: "Your OTP is expired, please request OTP again"
-      });
-    }
-  } catch (error) {
-    res.status(400).json({
-      status: "error",
-      response: error
-    });
-  }
-};
-
 exports.register = async (req, res) => {
   console.log(req.body.phone);
   try {
@@ -272,14 +269,14 @@ exports.register = async (req, res) => {
       });
     }
 
-    if (name === "" || name === null) {
+    if (name === "" || name === null || name === undefined) {
       return res.json({
         status: "error",
         response: "Name cant be empty"
       });
     }
 
-    if (email === "" || email === null) {
+    if (email === "" || email === null || email === undefined) {
       return res.json({
         status: "error",
         response: "Email cant be empty"
@@ -315,7 +312,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    if (pin === "" || pin === null) {
+    if (pin === "" || pin === null || pin === undefined) {
       return res.json({
         status: "error",
         response: "Pin cant be empty"
@@ -374,7 +371,7 @@ exports.register = async (req, res) => {
             phone: newUserData.phone,
             email: newUserData.email
           },
-          token
+          jwt: token
         }
       });
     } else {
@@ -396,7 +393,7 @@ exports.login = async (req, res) => {
     const phone = req.body.phone;
     const pin = req.body.pin;
 
-    if (phone === "" || phone === null) {
+    if (phone === "" || phone === null || phone === undefined) {
       return res.json({
         status: "error",
         response: "Phone cant be empty"
@@ -417,7 +414,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (pin === "" || pin === null) {
+    if (pin === "" || pin === null || pin === undefined) {
       return res.json({
         status: "error",
         response: "Pin cant be empty"
@@ -464,7 +461,7 @@ exports.login = async (req, res) => {
               email: userByPhone.email,
               image: userByPhone.image
             },
-            token
+            jwt: token
           }
         });
       } else {
@@ -487,6 +484,7 @@ exports.login = async (req, res) => {
   }
 };
 
+// TODO Delete function and route forgotPin, cause you have sendOtpEmail
 exports.forgotPin = async (req, res) => {
   try {
     const email = req.body.email;
@@ -550,10 +548,24 @@ exports.resetPin = async (req, res) => {
       });
     }
 
-    if (pin === "" || pin === null || pin === undefined) {
+    if (pin === "" || pin === null) {
       return res.json({
         status: "error",
-        response: "Pin can't be empty"
+        response: "Pin cant be empty"
+      });
+    }
+
+    if (pin.length !== 6) {
+      return res.json({
+        status: "error",
+        response: "Pin must be have 6 characters"
+      });
+    }
+
+    if (!isNumber(pin)) {
+      return res.json({
+        status: "error",
+        response: "Pin must be number"
       });
     }
 
@@ -592,6 +604,7 @@ exports.resetPin = async (req, res) => {
   }
 };
 
+// TODO Delete function and route sendOtpVerifyEmail, cause you have sendOtpEmail
 exports.sendOtpVerifyEmail = async (req, res) => {
   try {
     const email = req.body.email;
@@ -691,6 +704,269 @@ exports.updateVerifyEmail = async (req, res) => {
       return res.json({
         status: "error",
         response: "Otp not match"
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+exports.requestTokenUser = async (req, res) => {
+  try {
+    const phone = req.body.phone;
+    const pin = req.body.pin;
+
+    if (phone === "" || phone === null || phone === undefined) {
+      return res.json({
+        status: "error",
+        response: "Phone cant be empty"
+      });
+    }
+
+    if (!isNumber(phone)) {
+      return res.json({
+        status: "error",
+        response: "Phone must be number"
+      });
+    }
+
+    if (pin === "" || pin === null || pin === undefined) {
+      return res.json({
+        status: "error",
+        response: "Pin can't be empty"
+      });
+    }
+
+    if (pin.length !== 6) {
+      return res.json({
+        status: "error",
+        response: "Pin must be have 6 characters"
+      });
+    }
+
+    if (!isNumber(pin)) {
+      return res.json({
+        status: "error",
+        response: "Pin must be number"
+      });
+    }
+
+    const userByPhone = await userModel.findOne({ where: { phone } });
+
+    if (userByPhone) {
+      const randomToken = "99" + Math.floor(1000000 + Math.random() * 90000000);
+
+      const insertToken = await userModel.update(
+        { token: encrypt(randomToken) },
+        { where: { phone } }
+      );
+
+      if (insertToken) {
+        setTimeout(async () => {
+          await userModel.update({ token: null }, { where: { phone } });
+          console.log("token dihapus");
+        }, 180000);
+
+        res.json({
+          status: "success",
+          response: {
+            token: randomToken,
+            user: {
+              id: userByPhone.id,
+              name: userByPhone.name,
+              phone: userByPhone.phone,
+              email: userByPhone.email,
+              image: userByPhone.image
+            }
+          }
+        });
+      }
+    } else {
+      res.json({
+        status: "error",
+        response: "Phone is not exists"
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+exports.sendOtpEmail = async (req, res) => {
+  try {
+    const email = req.body.email;
+
+    const otp = await generateOtp(email, res);
+
+    if (otp.success) {
+      const type = req.body.type;
+
+      const msg = type === "verify" ? "Verify Your Account" : "Reset Password";
+
+      console.log(type, "masuk");
+      const subject = "This is Your Otp Code to " + msg;
+      const content = subject + " is " + otp.code;
+
+      // TODO If in upload please to open
+      // await sendEmail(email, subject, content);
+
+      console.log(content + " to " + email);
+
+      res.json({
+        status: "success",
+        response: "Successfully sent otp code to email " + email
+      });
+    } else {
+      res.json({
+        status: "error",
+        response: "Failed send otp, please try again later"
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+const sendOtpSms = async (req, res) => {
+  try {
+    const phone = req.body.phone;
+
+    console.log(phone, "hai");
+    const otp = await generateOtp(phone);
+
+    if (otp.success) {
+      // TODO If in upload please to open
+      // await sendSMS(phone, otp.code);
+
+      console.log(otp.code + " to " + phone);
+
+      // res.json({
+      //   status: "success",
+      //   response: "Successfully sent otp code to phone " + phone
+      // });
+
+      return true;
+    } else {
+      res.json({
+        status: "error",
+        response: "Failed send otp, please try again later"
+      });
+      return false;
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+const generateOtp = async receiver => {
+  try {
+    const oldOtp = await otpModel.findOne({
+      where: { receiver }
+    });
+
+    if (oldOtp) {
+      await otpModel.destroy({
+        where: { receiver }
+      });
+    }
+
+    const newOtp = Math.floor(100000 + Math.random() * 900000);
+
+    const newOtpEncrypt = encrypt(`${newOtp}`);
+    console.log(newOtpEncrypt);
+
+    const insertNewOtp = await otpModel.create(
+      {
+        otp: newOtpEncrypt,
+        receiver
+      },
+      {
+        fields: ["otp", "receiver"]
+      }
+    );
+
+    if (insertNewOtp) {
+      setTimeout(async () => {
+        await otpModel.destroy({
+          where: { otp: newOtpEncrypt }
+        });
+      }, 180000);
+
+      return { success: true, code: newOtp };
+    } else return { success: false };
+  } catch (error) {
+    return { success: false };
+  }
+};
+
+const sendSMS = (phone, otp) => {
+  client.messages
+    .create({
+      body: "Your OTP number is " + otp + ", this OTP only valid in 3 minutes",
+      from: process.env.TWILIO_NUMBER,
+      to: "+62" + phone
+    })
+    .then(message => console.log(message.sid));
+};
+
+const sendEmail = (email, subject, content) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY || "is your sendgrid api key");
+  const msg = {
+    to: email,
+    from: "admin@linkwae.id",
+    subject: subject,
+    text: content,
+    html: content
+  };
+  sgMail.send(msg);
+};
+
+exports.verifyOtp = async (req, res) => {
+  console.log("masuk ");
+  try {
+    const receiver = req.body.user;
+    const otp = req.body.otp;
+
+    if (receiver === "" || receiver === null || receiver === undefined) {
+      return res.json({
+        status: "error",
+        response: "User cant be empty, user can be email or phone number"
+      });
+    }
+
+    const userOtp = await otpModel.findOne({ where: { receiver } });
+
+    if (userOtp) {
+      if (compareEncrypt(otp, userOtp.otp)) {
+        otpModel.destroy({
+          where: { otp: userOtp.otp }
+        });
+        res.json({
+          status: "success",
+          response: "Otp code is valid"
+        });
+      } else {
+        res.json({
+          status: "error",
+          response: "Otp not match"
+        });
+      }
+    } else {
+      return res.json({
+        status: "error",
+        response: "Your OTP is expired, please request OTP again"
       });
     }
   } catch (error) {
