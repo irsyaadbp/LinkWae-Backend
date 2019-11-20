@@ -223,12 +223,17 @@ exports.verifyOtp = async (req, res) => {
         });
       }
     } else {
-      res.json({
+      return res.json({
         status: "error",
         response: "Your OTP is expired, please request OTP again"
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
 };
 
 exports.register = async (req, res) => {
@@ -288,11 +293,22 @@ exports.register = async (req, res) => {
       });
     }
 
-    const checkUser = await userModel.findOne({
+    const checkEmailuser = await userModel.findOne({
+      where: { email }
+    });
+
+    if (checkEmailuser) {
+      return res.json({
+        status: "error",
+        response: "Email number is exist"
+      });
+    }
+
+    const checkPhoneUser = await userModel.findOne({
       where: { phone }
     });
 
-    if (checkUser) {
+    if (checkPhoneUser) {
       return res.json({
         status: "error",
         response: "Phone number is exist"
@@ -338,17 +354,31 @@ exports.register = async (req, res) => {
       const newUserData = await userModel.findOne({
         where: { phone }
       });
+
+      const token = jwt.sign(
+        {
+          id: userByPhone.id,
+          name: userByPhone.name,
+          phone: userByPhone.phone,
+          email: userByPhone.email
+        },
+        secretKey
+      );
+
       return res.json({
         status: "success",
         response: {
-          id: newUserData.id,
-          name: newUserData.name,
-          phone: newUserData.phone,
-          email: newUserData.email
+          user: {
+            id: newUserData.id,
+            name: newUserData.name,
+            phone: newUserData.phone,
+            email: newUserData.email
+          },
+          token
         }
       });
     } else {
-      res.json({
+      return res.json({
         status: "error",
         response: "Register failed"
       });
@@ -444,7 +474,7 @@ exports.login = async (req, res) => {
         });
       }
     } else {
-      res.json({
+      return res.json({
         status: "error",
         response: "User not found"
       });
@@ -480,7 +510,7 @@ exports.forgotPin = async (req, res) => {
         }
       });
     } else {
-      res.json({
+      return res.json({
         status: "error",
         response: "Email not found"
       });
@@ -499,14 +529,14 @@ exports.resetPin = async (req, res) => {
     const pin = req.body.pin;
 
     if (email === "" || email === null || email === undefined) {
-      res.json({
+      return res.json({
         status: "error",
         response: "Email can't be empty"
       });
     }
 
     if (!isEmailValid(email)) {
-      res.json({
+      return res.json({
         status: "error",
         response: "Invalid email format"
       });
@@ -514,14 +544,14 @@ exports.resetPin = async (req, res) => {
 
     const userByEmail = await userModel.findOne({ where: { email } });
     if (!userByEmail) {
-      res.json({
+      return res.json({
         status: "error",
         response: "Email not found"
       });
     }
 
     if (pin === "" || pin === null || pin === undefined) {
-      res.json({
+      return res.json({
         status: "error",
         response: "Pin can't be empty"
       });
@@ -549,9 +579,118 @@ exports.resetPin = async (req, res) => {
         }
       });
     } else {
-      res.json({
+      return res.json({
         status: "error",
         response: "Failed change pin"
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+exports.sendOtpVerifyEmail = async (req, res) => {
+  try {
+    const email = req.body.email;
+    if (email === "" || email === null || email === undefined) {
+      return res.json({
+        status: "error",
+        response: "Email can't be empty"
+      });
+    }
+
+    if (!isEmailValid(email)) {
+      return res.json({
+        status: "error",
+        response: "Invalid email format"
+      });
+    }
+
+    const userByEmail = await userModel.findOne({ where: { email } });
+
+    if (!userByEmail) {
+      return res.json({
+        status: "error",
+        response: "Email not found"
+      });
+    }
+
+    await sendOtp(email, "email", res);
+
+    res.json({
+      status: "success",
+      response: {
+        message: "Otp verify email send",
+        user: {
+          id: userByEmail.id,
+          name: userByEmail.name,
+          phone: userByEmail.phone,
+          email: userByEmail.email,
+          image: userByEmail.image
+        }
+      }
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+exports.updateVerifyEmail = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const otp = req.body.otp;
+
+    if (email === "" || email === null || email === undefined) {
+      return res.json({
+        status: "error",
+        response: "Email can't be empty"
+      });
+    }
+
+    if (!isEmailValid(email)) {
+      return res.json({
+        status: "error",
+        response: "Invalid email format"
+      });
+    }
+
+    const userByEmail = await userModel.findOne({ where: { email } });
+
+    if (!userByEmail) {
+      return res.json({
+        status: "error",
+        response: "Email not found"
+      });
+    }
+
+    const userOtp = await otpModel.findOne({ where: { receiver: email } });
+
+    if (compareEncrypt(otp, userOtp.otp)) {
+      otpModel.destroy({
+        where: { otp: userOtp.otp }
+      });
+
+      const verifiedEmail = await userModel.update(
+        { type: "FA" },
+        { where: { email } }
+      );
+
+      if (verifiedEmail) {
+        res.json({
+          status: "success",
+          response: "Verify email success"
+        });
+      }
+    } else {
+      return res.json({
+        status: "error",
+        response: "Otp not match"
       });
     }
   } catch (error) {

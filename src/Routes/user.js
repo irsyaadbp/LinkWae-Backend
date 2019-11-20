@@ -22,4 +22,8 @@ Router.post("/login", userController.login);
 Router.post("/forgotPin", userController.forgotPin);
 Router.post("/resetPin", userController.resetPin);
 
+// Verify Email
+Router.post("/requestVerifyEmail", userController.sendOtpVerifyEmail);
+Router.post("/verifyEmail", userController.updateVerifyEmail);
+
 module.exports = Router;
