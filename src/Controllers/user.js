@@ -147,7 +147,7 @@ exports.checkUserAuth = async (req, res) => {
     else {
       status = false;
 
-      // TODO Call function this.sendOtpSms
+      // TODO Call function sendOtpSms
       await sendOtpSms(req, res);
 
       // await sendOtp(phone, "phone", res);
@@ -854,16 +854,16 @@ const sendOtpSms = async (req, res) => {
       //   response: "Successfully sent otp code to phone " + phone
       // });
 
-      return true;
+      // return true;
     } else {
-      res.json({
+      return res.json({
         status: "error",
         response: "Failed send otp, please try again later"
       });
-      return false;
+      // return false;
     }
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "error",
       response: error
     });
