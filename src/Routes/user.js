@@ -9,8 +9,8 @@ const { upload } = require("../Middleware/UploadImage");
 Router.get("/", userController.getUser);
 
 // Get User
-Router.get("/by/:phone", userController.getUserByPhone);
-Router.get("/by/:user_id", userController.getUserById);
+Router.get("/phone/:phone", userController.getUserByPhone);
+Router.get("/id/:user_id", userController.getUserById);
 
 // Authentication
 Router.post("/checkAuth", userController.checkUserAuth);
@@ -18,12 +18,30 @@ Router.post("/verifyOtp", userController.verifyOtp);
 Router.post("/register", upload.single("image"), userController.register);
 Router.post("/login", userController.login);
 
-// Forgot Password
-Router.post("/forgotPin", userController.forgotPin);
+Router.post("/sendOtpEmail", userController.sendOtpEmail);
+
+/* Forgot Password
+ *
+ * Old
+ * Router.post("/forgotPin", userController.forgotPin);
+ *
+ * New
+ * Please Request otp email to access /sendOtpEmail
+ */
 Router.post("/resetPin", userController.resetPin);
 
-// Verify Email
-Router.post("/requestVerifyEmail", userController.sendOtpVerifyEmail);
+/* Verify Email
+ *
+ * Old
+ * Router.post("/requestVerifyEmail", userController.sendOtpVerifyEmail);
+ *
+ * New
+ * Please Request otp email to access /sendOtpEmail
+ */
 Router.post("/verifyEmail", userController.updateVerifyEmail);
+
+Router.post("/requestToken", userController.requestTokenUser);
+
+// Router.post("/sendOtpSms", userController.sendOtpSms);
 
 module.exports = Router;

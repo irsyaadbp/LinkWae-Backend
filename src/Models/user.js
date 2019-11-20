@@ -31,11 +31,8 @@ exports.userModel = Sequelize.define(
     balance: {
       type: DataTypes.INTEGER
     },
-    bill_number: {
-      type: DataTypes.STRING(20)
-    },
-    bank: {
-      type: DataTypes.STRING(10)
+    token: {
+      type: DataTypes.TEXT
     },
     date_add: {
       type: "TIMESTAMP",
