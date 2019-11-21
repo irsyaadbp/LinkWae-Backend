@@ -21,13 +21,13 @@ Router.post("/checkAuth", userController.checkUserAuth);
 Router.post("/verifyOtp", userController.verifyOtp);
 Router.post(
   "/register",
-//   checkRegisterValue,
+  //   checkRegisterValue,
   upload.single("image"),
   userController.register
 );
 Router.post(
   "/changeImage",
-//   checkChangeImage,
+  //   checkChangeImage,
   upload.single("image"),
   userController.changeImage
 );
@@ -56,6 +56,8 @@ Router.post("/resetPin", userController.resetPin);
 Router.post("/verifyEmail", userController.updateVerifyEmail);
 
 Router.post("/requestToken", userController.requestTokenUser);
+
+Router.post("/changePin", userController.changePin);
 
 // Router.post("/sendOtpSms", userController.sendOtpSms);
 
