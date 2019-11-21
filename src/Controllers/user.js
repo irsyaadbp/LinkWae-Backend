@@ -549,7 +549,7 @@ exports.resetPin = async (req, res) => {
       });
     }
 
-    if (pin === "" || pin === null) {
+    if (pin === "" || pin === null || pin === undefined) {
       return res.json({
         status: "error",
         response: "Pin cant be empty"
@@ -802,12 +802,54 @@ exports.requestTokenUser = async (req, res) => {
 exports.sendOtpEmail = async (req, res) => {
   try {
     const email = req.body.email;
+    const type = req.body.type;
+
+    if (type === "verify") {
+      const pin = req.body.pin;
+
+      if (pin === null || pin === "" || pin === undefined) {
+        res.json({
+          status: "error",
+          response: "Pin cant be empty"
+        });
+      }
+
+      if (pin.length !== 6) {
+        return res.json({
+          status: "error",
+          response: "Pin must be have 6 characters"
+        });
+      }
+
+      if (!isNumber(pin)) {
+        return res.json({
+          status: "error",
+          response: "Pin must be number"
+        });
+      }
+
+      const userByEmail = await userModel.findOne({
+        where: { email }
+      });
+
+      if (!userByEmail) {
+        return res.json({
+          status: "error",
+          response: "User not found"
+        });
+      }
+
+      if (!compareEncrypt(pin, userByEmail.pin)) {
+        return res.json({
+          status: "error",
+          response: "Pin not match"
+        });
+      }
+    }
 
     const otp = await generateOtp(email, res);
 
     if (otp.success) {
-      const type = req.body.type;
-
       const msg = type === "verify" ? "Verify Your Account" : "Reset Password";
 
       console.log(type, "masuk");
@@ -1039,6 +1081,121 @@ exports.changeImage = async (req, res) => {
     }
   } catch (error) {
     res.json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+exports.changePin = async (req, res) => {
+  try {
+    const phone = req.body.phone;
+    const oldPin = req.body.old_pin;
+    const newPin = req.body.new_pin;
+
+    if (phone === "" || phone === null || phone === undefined) {
+      return res.json({
+        status: "error",
+        response: "Phone cant be empty"
+      });
+    }
+
+    if (!isNumber(phone)) {
+      return res.json({
+        status: "error",
+        response: "Phone must be number"
+      });
+    }
+
+    if (phone.length > 16 || phone.length < 8) {
+      return res.json({
+        status: "error",
+        response: "Phone can only be between 8-16 characters"
+      });
+    }
+
+    const userByPhone = await userModel.findOne({ where: { phone } });
+
+    if (!userByPhone) {
+      res.json({
+        status: "error",
+        response: "User not found"
+      });
+    }
+
+    if (newPin === "" || newPin === null || newPin === undefined) {
+      return res.json({
+        status: "error",
+        response: "New Pin cant be empty"
+      });
+    }
+
+    if (oldPin === "" || oldPin === null || oldPin === undefined) {
+      return res.json({
+        status: "error",
+        response: "Old Pin cant be empty"
+      });
+    }
+
+    if (newPin.length !== 6) {
+      return res.json({
+        status: "error",
+        response: "New Pin must be have 6 characters"
+      });
+    }
+
+    if (oldPin.length !== 6) {
+      return res.json({
+        status: "error",
+        response: "Old Pin must be have 6 characters"
+      });
+    }
+
+    if (!isNumber(newPin)) {
+      return res.json({
+        status: "error",
+        response: "New Pin must be number"
+      });
+    }
+
+    if (!isNumber(oldPin)) {
+      return res.json({
+        status: "error",
+        response: "Old Pin must be number"
+      });
+    }
+
+    if (!compareEncrypt(oldPin, userByPhone.pin)) {
+      res.json({
+        status: "error",
+        response: "Pin not match"
+      });
+    }
+
+    const updatePin = await userModel.update(
+      {
+        pin: encrypt(newPin)
+      },
+      { where: { phone } }
+    );
+
+    if (updatePin) {
+      res.json({
+        status: "success",
+        response: {
+          message: "Success change pin",
+          user: {
+            id: userByPhone.id,
+            name: userByPhone.name,
+            phone: userByPhone.phone,
+            email: userByPhone.email,
+            image: userByPhone.image
+          }
+        }
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
       status: "error",
       response: error
     });
