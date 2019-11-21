@@ -269,6 +269,17 @@ exports.register = async (req, res) => {
       });
     }
 
+    const checkPhoneUser = await userModel.findOne({
+      where: { phone }
+    });
+
+    if (checkPhoneUser) {
+      return res.json({
+        status: "error",
+        response: "Phone number is exist"
+      });
+    }
+
     if (name === "" || name === null || name === undefined) {
       return res.json({
         status: "error",
@@ -298,17 +309,6 @@ exports.register = async (req, res) => {
       return res.json({
         status: "error",
         response: "Email number is exist"
-      });
-    }
-
-    const checkPhoneUser = await userModel.findOne({
-      where: { phone }
-    });
-
-    if (checkPhoneUser) {
-      return res.json({
-        status: "error",
-        response: "Phone number is exist"
       });
     }
 
@@ -354,10 +354,10 @@ exports.register = async (req, res) => {
 
       const token = jwt.sign(
         {
-          id: userByPhone.id,
-          name: userByPhone.name,
-          phone: userByPhone.phone,
-          email: userByPhone.email
+          id: newUserData.id,
+          name: newUserData.name,
+          phone: newUserData.phone,
+          email: newUserData.email
         },
         secretKey
       );
@@ -369,7 +369,8 @@ exports.register = async (req, res) => {
             id: newUserData.id,
             name: newUserData.name,
             phone: newUserData.phone,
-            email: newUserData.email
+            email: newUserData.email,
+            image: newUserData.image
           },
           jwt: token
         }
@@ -881,8 +882,8 @@ const generateOtp = async receiver => {
         where: { receiver }
       });
     }
-
-    const newOtp = Math.floor(100000 + Math.random() * 900000);
+    const newOtp = 123456;
+    // const newOtp = Math.floor(100000 + Math.random() * 900000);
 
     const newOtpEncrypt = encrypt(`${newOtp}`);
     console.log(newOtpEncrypt);
@@ -953,12 +954,12 @@ exports.verifyOtp = async (req, res) => {
         otpModel.destroy({
           where: { otp: userOtp.otp }
         });
-        res.json({
-          status: "success",
+        return res.json({
+          status: "error",
           response: "Otp code is valid"
         });
       } else {
-        res.json({
+        return res.json({
           status: "error",
           response: "Otp not match"
         });
@@ -970,7 +971,74 @@ exports.verifyOtp = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
+};
+
+exports.changeImage = async (req, res) => {
+  try {
+    const phone = req.body.phone;
+    const image = req.file
+      ? "/images/uploads/" + req.file.filename
+      : "/images/avatar.png";
+
+    if (phone === "" || phone === null || phone === undefined) {
+      return res.json({
+        status: "error",
+        response: "Phone cant be empty"
+      });
+    }
+
+    if (!isNumber(phone)) {
+      return res.json({
+        status: "error",
+        response: "Phone must be number"
+      });
+    }
+
+    if (phone.length > 16 || phone.length < 8) {
+      return res.json({
+        status: "error",
+        response: "Phone can only be between 8-16 characters"
+      });
+    }
+
+    console.log(image);
+
+    const changeNewImage = await userModel.update(
+      {
+        image
+      },
+      { where: { phone } }
+    );
+
+    if (changeNewImage) {
+      const newUser = await userModel.findOne({ where: { phone } });
+
+      res.json({
+        status: "success",
+        response: {
+          message: "Success change Image",
+          user: {
+            id: newUser.id,
+            name: newUser.name,
+            phone: newUser.phone,
+            email: newUser.email,
+            image: newUser.image
+          }
+        }
+      });
+    } else {
+      return res.json({
+        status: "error",
+        response: "Failed change image"
+      });
+    }
+  } catch (error) {
+    res.json({
       status: "error",
       response: error
     });

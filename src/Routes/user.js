@@ -4,6 +4,10 @@ const express = require("express");
 const userController = require("../Controllers/user.js");
 const Router = express.Router();
 const { upload } = require("../Middleware/UploadImage");
+const {
+  checkRegisterValue,
+  checkChangeImage
+} = require("../Middleware/checkUpload");
 // const uploadImage = upload.single("image");
 
 Router.get("/", userController.getUser);
@@ -15,7 +19,18 @@ Router.get("/id/:user_id", userController.getUserById);
 // Authentication
 Router.post("/checkAuth", userController.checkUserAuth);
 Router.post("/verifyOtp", userController.verifyOtp);
-Router.post("/register", upload.single("image"), userController.register);
+Router.post(
+  "/register",
+//   checkRegisterValue,
+  upload.single("image"),
+  userController.register
+);
+Router.post(
+  "/changeImage",
+//   checkChangeImage,
+  upload.single("image"),
+  userController.changeImage
+);
 Router.post("/login", userController.login);
 
 Router.post("/sendOtpEmail", userController.sendOtpEmail);
