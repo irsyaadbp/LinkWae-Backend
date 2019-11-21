@@ -4,11 +4,6 @@ const express = require("express");
 const userController = require("../Controllers/user.js");
 const Router = express.Router();
 const { upload } = require("../Middleware/UploadImage");
-const {
-  checkRegisterValue,
-  checkChangeImage
-} = require("../Middleware/checkUpload");
-// const uploadImage = upload.single("image");
 
 Router.get("/", userController.getUser);
 
