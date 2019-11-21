@@ -243,7 +243,7 @@ exports.register = async (req, res) => {
     // console.log(req.headers.host);
 
     const image = req.file
-      ? "/images/uploads/" + req.file.filename
+      ? "/images/uploads/profile/" + req.file.filename
       : "/images/avatar.png";
 
     // return;
