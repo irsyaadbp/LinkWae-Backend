@@ -202,10 +202,10 @@ const sendOtp = async (receiver, type, res) => {
       console.log(newOtp);
 
       if (type === "phone") {
-        // sendSMS(receiver, newOtp);
+        sendSMS(receiver, newOtp);
         console.log("kirim sms dengan otp " + newOtp + " ke " + receiver);
       } else {
-        // sendEmail(receiver, newOtp);
+        sendEmail(receiver, newOtp);
         console.log("kirim email dengan otp " + newOtp + " ke " + receiver);
       }
 
@@ -240,7 +240,7 @@ exports.register = async (req, res) => {
     const pin = req.body.pin;
     const name = req.body.name;
     const email = req.body.email;
-    // console.log(req.headers.host);
+    const expo_token = req.body.expo_token;
 
     const image = req.file
       ? "/images/uploads/profile/" + req.file.filename
@@ -333,6 +333,13 @@ exports.register = async (req, res) => {
       });
     }
 
+    if (expo_token === null || expo_token === "" || expo_token === undefined) {
+      return res.json({
+        status: "error",
+        response: "Expo Token can't be empty"
+      });
+    }
+
     const newUser = await userModel.create(
       {
         phone,
@@ -393,6 +400,7 @@ exports.login = async (req, res) => {
   try {
     const phone = req.body.phone;
     const pin = req.body.pin;
+    const expo_token = req.body.expo_token;
 
     if (phone === "" || phone === null || phone === undefined) {
       return res.json({
@@ -442,6 +450,7 @@ exports.login = async (req, res) => {
 
     if (userByPhone) {
       if (compareEncrypt(pin, userByPhone.pin)) {
+        await userModel.update({ expo_token }, { where: { phone } });
         const token = jwt.sign(
           {
             id: userByPhone.id,

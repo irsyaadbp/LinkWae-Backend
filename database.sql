@@ -1,12 +1,12 @@
--- --------------------------------------------------------
 
 --
--- Table structure for table `article`
+-- Table structure for table `articles`
 --
 
-CREATE TABLE `article` (
+CREATE TABLE `articles` (
   `id` int(11) NOT NULL,
   `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `image` text COLLATE utf8_unicode_ci NOT NULL,
   `spoiler` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `content` text COLLATE utf8_unicode_ci NOT NULL,
   `type` enum('promo','info') COLLATE utf8_unicode_ci NOT NULL,
@@ -17,57 +17,47 @@ CREATE TABLE `article` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `category`
+-- Table structure for table `categories`
 --
 
-CREATE TABLE `category` (
-  `id` int(11) NOT NULL,
-  `name` varchar(10) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `merchant`
---
-
-CREATE TABLE `merchant` (
+CREATE TABLE `categories` (
   `id` int(11) NOT NULL,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `address` text COLLATE utf8_unicode_ci NOT NULL,
-  `detail` text COLLATE utf8_unicode_ci NOT NULL,
-  `longitude` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `latitude` varchar(20) COLLATE utf8_unicode_ci NOT NULL
+  `address` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `detail` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `longitude` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `latitude` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `parent_category` enum('ppob','merchants','balance','donation') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `token`
+-- Table structure for table `otps`
 --
 
-CREATE TABLE `token` (
+CREATE TABLE `otps` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `token` int(11) NOT NULL,
-  `date_add` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `otp` text COLLATE utf8_unicode_ci NOT NULL,
+  `receiver` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transaction`
+-- Table structure for table `transactions`
 --
 
-CREATE TABLE `transaction` (
+CREATE TABLE `transactions` (
   `id` int(11) NOT NULL,
+  `invoice_no` varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `voucher_code` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `category_id` int(2) NOT NULL,
   `amount` int(11) NOT NULL,
   `status` enum('success','pending','error') COLLATE utf8_unicode_ci NOT NULL,
-  `type` enum('send','receive') COLLATE utf8_unicode_ci NOT NULL,
+  `code_number` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `detail_transaction` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `date_add` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -75,83 +65,85 @@ CREATE TABLE `transaction` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Table structure for table `users`
 --
 
-CREATE TABLE `user` (
+CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `no_telp` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+  `phone` varchar(16) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `email` int(11) DEFAULT NULL,
-  `pin` int(11) NOT NULL,
-  `image` int(11) DEFAULT NULL,
-  `type` enum('A','FA','B') COLLATE utf8_unicode_ci NOT NULL,
+  `email` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pin` text COLLATE utf8_unicode_ci NOT NULL,
+  `image` text COLLATE utf8_unicode_ci,
+  `type` enum('A','FA','B') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'B',
   `balance` int(11) NOT NULL DEFAULT '0',
-  `no_rek` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `bank` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `token` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `expo_token` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `date_add` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_update` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `phone`, `name`, `email`, `pin`, `image`, `type`, `balance`, `token`, `expo_token`) VALUES
+(1, '0', 'admin', 'admin@linkwae.id', '$2b$10$K80zk14wySyulRlhgh27p.zN2mIKhPFOXGR6SKGHq0/9V7QfotYB.', '/images/avatar.png', 'A', 0, '', '');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `voucher`
+-- Table structure for table `vouchers`
 --
 
-CREATE TABLE `voucher` (
+CREATE TABLE `vouchers` (
   `id` int(11) NOT NULL,
   `code` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `type` enum('percent','fixed') COLLATE utf8_unicode_ci NOT NULL,
   `amount` int(11) NOT NULL,
   `date_add` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `date_expired` timestamp NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `article`
+-- Indexes for table `articles`
 --
-ALTER TABLE `article`
+ALTER TABLE `articles`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `category`
+-- Indexes for table `categories`
 --
-ALTER TABLE `category`
+ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `merchant`
+-- Indexes for table `otps`
 --
-ALTER TABLE `merchant`
+ALTER TABLE `otps`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `token`
+-- Indexes for table `transactions`
 --
-ALTER TABLE `token`
+ALTER TABLE `transactions`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `transaction`
+-- Indexes for table `users`
 --
-ALTER TABLE `transaction`
+ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `user`
+-- Indexes for table `vouchers`
 --
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `voucher`
---
-ALTER TABLE `voucher`
+ALTER TABLE `vouchers`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -159,48 +151,37 @@ ALTER TABLE `voucher`
 --
 
 --
--- AUTO_INCREMENT for table `article`
+-- AUTO_INCREMENT for table `articles`
 --
-ALTER TABLE `article`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `articles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
--- AUTO_INCREMENT for table `category`
+-- AUTO_INCREMENT for table `categories`
 --
-ALTER TABLE `category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
--- AUTO_INCREMENT for table `merchant`
+-- AUTO_INCREMENT for table `otps`
 --
-ALTER TABLE `merchant`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `otps`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
--- AUTO_INCREMENT for table `token`
+-- AUTO_INCREMENT for table `transactions`
 --
-ALTER TABLE `token`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
--- AUTO_INCREMENT for table `transaction`
+-- AUTO_INCREMENT for table `users`
 --
-ALTER TABLE `transaction`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
--- AUTO_INCREMENT for table `user`
+-- AUTO_INCREMENT for table `vouchers`
 --
-ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `voucher`
---
-ALTER TABLE `voucher`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+ALTER TABLE `vouchers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;

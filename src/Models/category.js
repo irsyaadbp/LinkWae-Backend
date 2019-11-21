@@ -26,8 +26,8 @@ exports.categoryModel = Sequelize.define(
       type: DataTypes.STRING(20)
     },
     parent_category:{
-      type: DataTypes.ENUM(["ppob", "merchants","balance"])
-    }
+      type: DataTypes.ENUM(["ppob", "merchants","balance","donation"])
+    },
   },
   {
     timestamps: false
