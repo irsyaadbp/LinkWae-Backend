@@ -3,38 +3,35 @@
 const { DataTypes } = require("sequelize");
 const Sequelize = require("../Config/connect");
 
-exports.userModel = Sequelize.define(
-  "user",
+exports.transactionModel = Sequelize.define(
+  "transactions",
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },
-    phone: {
-      type: DataTypes.STRING(16)
+    invoice_no: {
+      type: DataTypes.STRING(15)
     },
-    name: {
-      type: DataTypes.STRING(50)
+    user_id: {
+      type: DataTypes.INTEGER,
     },
-    email: {
-      type: DataTypes.STRING(50)
+    voucher_code: {
+      type: DataTypes.STRING(10)
     },
-    pin: {
-      type: DataTypes.TEXT
+    category_id: {
+      type: DataTypes.INTEGER(2)
     },
-    image: {
-      type: DataTypes.TEXT
-    },
-    type: {
-      type: DataTypes.ENUM(["A", "FA", "B"])
-    },
-    balance: {
+    amount: {
       type: DataTypes.INTEGER
     },
-    token: {
-      type: DataTypes.TEXT
+    status: {
+      type: DataTypes.ENUM(["success","pending", "error"])
     },
-    expo_token: {
+    code_number: {
+      type: DataTypes.STRING(30)
+    },
+    detail_transaction: {
       type: DataTypes.TEXT
     },
     date_add: {
@@ -46,9 +43,9 @@ exports.userModel = Sequelize.define(
       type: "TIMESTAMP",
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       allowNull: false
-    }
+    },
   },
   {
-    timestamps: false
-  }
+    timestamps: false,
+  },
 );

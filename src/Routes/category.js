@@ -5,9 +5,9 @@ const categoryController = require('../Controllers/category.js');
 const Router = express.Router();
 
 Router.get('/', categoryController.getCategory);
-Router.get('/by/:id', categoryController.getCategoryId);
+Router.get('/id/:id', categoryController.getCategoryId);
+Router.get('/parent/:parent', categoryController.getCategoryParent);
 Router.post('/', categoryController.postCategory);
-Router.put('/by/:id', categoryController.updateCategory);
-Router.delete('/by/:id', categoryController.deleteCategory);
+Router.put('/:id', categoryController.updateCategory);
 
 module.exports = Router;
