@@ -1,5 +1,7 @@
 # exclude everything
+articles/*
 uploads/*
 
 # exception to the rule
+!articles/.gitkeep 
 !uploads/.gitkeep 
