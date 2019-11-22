@@ -5,6 +5,7 @@ const { upload } = require("../Middleware/UploadImageArticle");
 
 Router.get("/", articleController.getAllArticle);
 Router.get("/:article_id", articleController.getArticleById);
+Router.get("/type/:type", articleController.getArticleByType);
 Router.post("/", upload.single("image"), articleController.createArticle);
 Router.put(
   "/:article_id",
