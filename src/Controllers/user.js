@@ -590,7 +590,7 @@ exports.resetPin = async (req, res) => {
       res.json({
         status: "success",
         response: {
-          message: "Success change pin",
+          message: "Success reset pin",
           user: {
             id: userByEmail.id,
             name: userByEmail.name,
