@@ -45,7 +45,7 @@ exports.getArticleById = async (req, res) => {
 exports.getArticleByType = async (req,res) => {
   try {
     const type = req.params.type;
-    const articleByType = await articleModel.findOne({
+    const articleByType = await articleModel.findAll({
       where: { type }
     });
 
