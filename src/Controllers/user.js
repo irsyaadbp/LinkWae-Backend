@@ -333,7 +333,6 @@ exports.register = async (req, res) => {
       });
     }
 
-
     const newUser = await userModel.create(
       {
         phone,
@@ -371,7 +370,8 @@ exports.register = async (req, res) => {
             name: newUserData.name,
             phone: newUserData.phone,
             email: newUserData.email,
-            image: newUserData.image
+            image: newUserData.image,
+            balance: newUserData.balance
           },
           jwt: token
         }
@@ -463,7 +463,8 @@ exports.login = async (req, res) => {
               name: userByPhone.name,
               phone: userByPhone.phone,
               email: userByPhone.email,
-              image: userByPhone.image
+              image: userByPhone.image,
+              balance: userByPhone.balance
             },
             jwt: token
           }
@@ -507,7 +508,8 @@ exports.forgotPin = async (req, res) => {
             name: userByEmail.name,
             phone: userByEmail.phone,
             email: userByEmail.email,
-            image: userByEmail.image
+            image: userByEmail.image,
+            balance: userByEmail.balance
           }
         }
       });
@@ -590,7 +592,8 @@ exports.resetPin = async (req, res) => {
             name: userByEmail.name,
             phone: userByEmail.phone,
             email: userByEmail.email,
-            image: userByEmail.image
+            image: userByEmail.image,
+            balance: userByEmail.balance
           }
         }
       });
@@ -646,7 +649,8 @@ exports.sendOtpVerifyEmail = async (req, res) => {
           name: userByEmail.name,
           phone: userByEmail.phone,
           email: userByEmail.email,
-          image: userByEmail.image
+          image: userByEmail.image,
+          balance: userByEmail.balance
         }
       }
     });
@@ -787,7 +791,8 @@ exports.requestTokenUser = async (req, res) => {
               name: userByPhone.name,
               phone: userByPhone.phone,
               email: userByPhone.email,
-              image: userByPhone.image
+              image: userByPhone.image,
+              balance: userByPhone.balance
             }
           }
         });
@@ -1076,7 +1081,8 @@ exports.changeImage = async (req, res) => {
             name: newUser.name,
             phone: newUser.phone,
             email: newUser.email,
-            image: newUser.image
+            image: newUser.image,
+            balance: newUser.balance
           }
         }
       });
@@ -1196,7 +1202,8 @@ exports.changePin = async (req, res) => {
             name: userByPhone.name,
             phone: userByPhone.phone,
             email: userByPhone.email,
-            image: userByPhone.image
+            image: userByPhone.image,
+            balance: userByPhone.balance
           }
         }
       });
