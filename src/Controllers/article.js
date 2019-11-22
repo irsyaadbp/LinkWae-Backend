@@ -42,7 +42,7 @@ exports.getArticleById = async (req, res) => {
   }
 };
 
-exports.getArticleByType = async (req,res) => {
+exports.getArticleByType = async (req, res) => {
   try {
     const type = req.params.type;
     const articleByType = await articleModel.findAll({
@@ -66,7 +66,7 @@ exports.getArticleByType = async (req,res) => {
       response: error
     });
   }
-}
+};
 
 exports.createArticle = async (req, res) => {
   try {
@@ -243,5 +243,10 @@ exports.deleteArticle = async (req, res) => {
         response: { message: "Success delete article", article }
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      response: error
+    });
+  }
 };
