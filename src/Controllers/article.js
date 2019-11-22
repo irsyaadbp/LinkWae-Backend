@@ -42,8 +42,35 @@ exports.getArticleById = async (req, res) => {
   }
 };
 
+exports.getArticleByType = async (req,res) => {
+  try {
+    const type = req.params.type;
+    const articleByType = await articleModel.findOne({
+      where: { type }
+    });
+
+    if (articleByType) {
+      res.json({
+        status: "success",
+        response: articleByType
+      });
+    } else {
+      res.json({
+        status: "error",
+        response: "Article not found"
+      });
+    }
+  } catch (error) {
+    res.json({
+      status: "error",
+      response: error
+    });
+  }
+}
+
 exports.createArticle = async (req, res) => {
   try {
+    console.log(type);
     const title = req.body.title;
     const spoiler = req.body.spoiler;
     const content = req.body.content;
