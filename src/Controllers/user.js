@@ -869,7 +869,7 @@ exports.sendOtpEmail = async (req, res) => {
       const content = subject + " is " + otp.code;
 
       // TODO If in upload please to open
-      // await sendEmail(email, subject, content);
+      await sendEmail(email, subject, content);
 
       console.log(content + " to " + email);
 
@@ -900,7 +900,7 @@ const sendOtpSms = async (req, res) => {
 
     if (otp.success) {
       // TODO If in upload please to open
-      // await sendSMS(phone, otp.code);
+      await sendSMS(phone, otp.code);
 
       console.log(otp.code + " to " + phone);
 
@@ -936,8 +936,8 @@ const generateOtp = async receiver => {
         where: { receiver }
       });
     }
-    const newOtp = 123456;
-    // const newOtp = Math.floor(100000 + Math.random() * 900000);
+    // const newOtp = 123456;
+    const newOtp = Math.floor(100000 + Math.random() * 900000);
 
     const newOtpEncrypt = encrypt(`${newOtp}`);
     console.log(newOtpEncrypt);
