@@ -70,7 +70,6 @@ exports.getArticleByType = async (req,res) => {
 
 exports.createArticle = async (req, res) => {
   try {
-    console.log(type);
     const title = req.body.title;
     const spoiler = req.body.spoiler;
     const content = req.body.content;
