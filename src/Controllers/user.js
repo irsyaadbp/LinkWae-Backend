@@ -169,69 +169,69 @@ exports.checkUserAuth = async (req, res) => {
 };
 
 // TODO Delete function and route sendOtp, cause you have sendOtpEmail adn sendOtpSms
-const sendOtp = async (receiver, type, res) => {
-  try {
-    // const phone = req.body.phone;
+// const sendOtp = async (receiver, type, res) => {
+//   try {
+//     // const phone = req.body.phone;
 
-    const oldOtp = await otpModel.findOne({
-      where: { receiver }
-    });
+//     const oldOtp = await otpModel.findOne({
+//       where: { receiver }
+//     });
 
-    if (oldOtp) {
-      await otpModel.destroy({
-        where: { receiver }
-      });
-    }
+//     if (oldOtp) {
+//       await otpModel.destroy({
+//         where: { receiver }
+//       });
+//     }
 
-    const newOtp = Math.floor(100000 + Math.random() * 900000);
+//     const newOtp = Math.floor(100000 + Math.random() * 900000);
 
-    const newOtpEncrypt = encrypt(`${newOtp}`);
-    console.log(newOtpEncrypt);
+//     const newOtpEncrypt = encrypt(`${newOtp}`);
+//     console.log(newOtpEncrypt);
 
-    const insertNewOtp = await otpModel.create(
-      {
-        otp: newOtpEncrypt,
-        receiver
-      },
-      {
-        fields: ["otp", "receiver"]
-      }
-    );
+//     const insertNewOtp = await otpModel.create(
+//       {
+//         otp: newOtpEncrypt,
+//         receiver
+//       },
+//       {
+//         fields: ["otp", "receiver"]
+//       }
+//     );
 
-    if (insertNewOtp) {
-      console.log(newOtp);
+//     if (insertNewOtp) {
+//       console.log(newOtp);
 
-      if (type === "phone") {
-        sendSMS(receiver, newOtp);
-        console.log("kirim sms dengan otp " + newOtp + " ke " + receiver);
-      } else {
-        sendEmail(receiver, newOtp);
-        console.log("kirim email dengan otp " + newOtp + " ke " + receiver);
-      }
+//       if (type === "phone") {
+//         sendSMS(receiver, newOtp);
+//         console.log("kirim sms dengan otp " + newOtp + " ke " + receiver);
+//       } else {
+//         sendEmail(receiver, newOtp);
+//         console.log("kirim email dengan otp " + newOtp + " ke " + receiver);
+//       }
 
-      setTimeout(async () => {
-        await otpModel.destroy({
-          where: { otp: newOtpEncrypt }
-        });
-      }, 180000);
+//       setTimeout(async () => {
+//         await otpModel.destroy({
+//           where: { otp: newOtpEncrypt }
+//         });
+//       }, 180000);
 
-      // res.json({
-      //   status: "success",
-      //   response: {
-      //     newOtp,
-      //     newOtpEncrypt
-      //   }
-      // });
-    }
+//       // res.json({
+//       //   status: "success",
+//       //   response: {
+//       //     newOtp,
+//       //     newOtpEncrypt
+//       //   }
+//       // });
+//     }
 
-    // const
-  } catch (error) {
-    return res.status(400).json({
-      status: "error",
-      response: error
-    });
-  }
-};
+//     // const
+//   } catch (error) {
+//     return res.status(400).json({
+//       status: "error",
+//       response: error
+//     });
+//   }
+// };
 
 exports.register = async (req, res) => {
   console.log(req.body.phone);
@@ -1006,7 +1006,7 @@ exports.verifyOtp = async (req, res) => {
           where: { otp: userOtp.otp }
         });
         return res.json({
-          status: "error",
+          status: "success",
           response: "Otp code is valid"
         });
       } else {
