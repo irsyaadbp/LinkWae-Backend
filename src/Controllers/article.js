@@ -18,7 +18,7 @@ exports.getAllArticle = async (req, res) => {
 
 exports.getArticleById = async (req, res) => {
   try {
-    const id = req.body.article_id;
+    const id = req.params.article_id;
     const articleById = await articleModel.findOne({
       where: { id }
     });
@@ -28,8 +28,18 @@ exports.getArticleById = async (req, res) => {
         status: "success",
         response: articleById
       });
+    } else {
+      res.json({
+        status: "error",
+        response: "Article not found"
+      });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.json({
+      status: "error",
+      response: error
+    });
+  }
 };
 
 exports.createArticle = async (req, res) => {

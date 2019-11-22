@@ -767,6 +767,10 @@ exports.requestTokenUser = async (req, res) => {
     const userByPhone = await userModel.findOne({ where: { phone } });
 
     if (userByPhone) {
+      if (!compareEncrypt(pin, userByPhone.pin)) {
+        return res.json({ status: "error", response: "Pin not match" });
+      }
+
       const randomToken = "99" + Math.floor(1000000 + Math.random() * 90000000);
 
       const insertToken = await userModel.update(
