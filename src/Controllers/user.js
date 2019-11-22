@@ -333,12 +333,6 @@ exports.register = async (req, res) => {
       });
     }
 
-    if (expo_token === null || expo_token === "" || expo_token === undefined) {
-      return res.json({
-        status: "error",
-        response: "Expo Token can't be empty"
-      });
-    }
 
     const newUser = await userModel.create(
       {
